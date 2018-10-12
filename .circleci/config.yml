@@ -21,10 +21,10 @@ workflows:
   ssh_deploy:
     jobs:
       - deploy-live
-        filters:
-          branches:
-            only: master
+          filters:
+            branches:
+              only: master
       - deploy-acc
-        filters:
-          branches:
-            only: acceptance
+          filters:
+            branches:
+              only: acceptance
