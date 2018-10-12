@@ -1,0 +1,78 @@
+Allow from all
+
+# Requires mod_expires to be enabled.
+<IfModule mod_expires.c>
+  # Enable expirations.
+  ExpiresActive On
+
+  # Cache all files for 2 weeks after access (A).
+  ExpiresDefault A1209600
+
+  <FilesMatch \.php$>
+    # Do not allow PHP scripts to be cached unless they explicitly send cache
+    # headers themselves. Otherwise all scripts would have to overwrite the
+    # headers set by mod_expires if they want another caching behavior. This may
+    # fail if an error occurs early in the bootstrap process, and it may cause
+    # problems if a non-Drupal PHP file is installed in a subdirectory.
+    ExpiresActive Off
+  </FilesMatch>
+  
+  #ExpiresByType application/x-font-woff                "access plus 1 month"
+	#ExpiresByType application/font-woff                 "access plus 1 month"
+    #ExpiresByType application/vnd.ms-fontobject         "access plus 1 month"
+    #ExpiresByType application/x-font-ttf                "access plus 1 month"
+   # ExpiresByType font/opentype                         "access plus 1 month"
+  #  ExpiresByType image/svg+xml                         "access plus 1 month"
+</IfModule>
+
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteBase /
+RewriteCond %{HTTP_HOST} ^www\.(.*)$ [NC]
+RewriteRule ^(.*)$ http://%1/$1 [R=301,L]
+
+<IfModule mod_headers.c>
+	# Strict-Transport-Security
+	Header set Strict-Transport-Security "max-age=10886400; includeSubDomains; preload" env=HTTPS
+	# Content-Security-Policy
+	Header set Content-Security-Policy: "script-src https: 'unsafe-eval' 'unsafe-inline'; style-src https: 'unsafe-inline'"
+	# Public-Key-Pins
+	Header always set Public-Key-Pins 'pin-sha256="pDRR8tU/3iVmcJqFyvl6JsPThpF7PHkw4exx9XV0gnM="; \
+						pin-sha256="YLh1dUR9y6Kja30RrAn7JKnbQG/uEtLMkBgFF2Fuihg="; \
+						pin-sha256="Vjs8r4z+80wjNcr1YKepWQboSIRi63WsWXhIMN+eWys="; \
+						includeSubdomains; max-age=5184000'
+	Header always append X-Frame-Options SAMEORIGIN
+	Header set X-XSS-Protection "1; mode=block"
+	Header set X-Content-Type-Options nosniff
+	Header set Referrer-Policy: strict-origin-when-cross-origin
+	Header set Expect-CT 'max-age=0; report-uri="https://scotthelme.report-uri.io/r/default/ct/reportOnly"'
+
+    # Serve gzip compressed CSS files if they exist and the client accepts gzip.
+    RewriteCond %{HTTP:Accept-encoding} gzip
+    RewriteCond %{REQUEST_FILENAME}\.gz -s
+    RewriteRule ^(.*)\.css $1\.css\.gz [QSA]
+
+    # Serve gzip compressed JS files if they exist and the client accepts gzip.
+    RewriteCond %{HTTP:Accept-encoding} gzip
+    RewriteCond %{REQUEST_FILENAME}\.gz -s
+    RewriteRule ^(.*)\.js $1\.js\.gz [QSA]
+
+    # Serve correct content types, and prevent mod_deflate double gzip.
+    RewriteRule \.css\.gz$ - [T=text/css,E=no-gzip:1]
+    RewriteRule \.js\.gz$ - [T=text/javascript,E=no-gzip:1]
+
+    <FilesMatch "(\.js\.gz|\.css\.gz)$">
+      # Serve correct encoding type.
+      Header set Content-Encoding gzip
+      # Force proxies to cache gzipped & non-gzipped css/js files separately.
+      Header append Vary Accept-Encoding
+	  Header set Cache-Control "max-age=290304000, public, must-revalidate"
+    </FilesMatch>
+	 
+	<FilesMatch ".(woff|png|js|css|jpg)$">
+		Header set Cache-Control "max-age=290304000, public, must-revalidate"
+	</FilesMatch>
+	
+  </IfModule>
+
+</IfModule>
