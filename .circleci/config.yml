@@ -15,4 +15,3 @@ workflows:
       - deploy
           filters:
             branches:
-              only: master
