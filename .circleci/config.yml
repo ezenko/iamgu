@@ -1,17 +1,30 @@
-version: 2.1
+version: 2
 jobs:
-  deploy:
+  deploy-live:
     machine:
       enabled: true
     steps:
       - run:
-          name: Deploy Over SSH
+          name: Deploy Over SSH to Production
           command: |
             ssh zeuty@155.94.181.128 "cd /home/zeuty/iamgu && git pull origin master"
+  deploy-acc:
+      machine:
+        enabled: true
+      steps:
+        - run:
+            name: Deploy Over SSH to Acceptance
+            command: |
+              ssh zeuty@155.94.181.128 "cd /home/zeuty/iamgu_acc && git pull origin acceptance"
 workflows:
-  version: 2.1
+  version: 2
   ssh_deploy:
     jobs:
-      - deploy
+      - deploy-live:
           filters:
             branches:
+              only: master
+      - deploy-acc:
+          filters:
+            branches:
+              only: acceptance
