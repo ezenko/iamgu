@@ -7,7 +7,7 @@ jobs:
       - run:
           name: Deploy Over SSH
           command: |
-            ssh zeuty@155.94.181.128 && cd /home/zeuty/test && git reset --hard && git pull origin master
+            ssh zeuty@155.94.181.128 "cd /home/zeuty/test && git reset --hard && git pull origin master"
 workflows:
   version: 2
   ssh_deploy:
