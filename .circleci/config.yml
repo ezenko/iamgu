@@ -1,4 +1,4 @@
-version: 2
+version: 2.1
 jobs:
   deploy:
     machine:
@@ -9,7 +9,7 @@ jobs:
           command: |
             ssh zeuty@155.94.181.128 "cd /home/zeuty/iamgu && git pull origin master"
 workflows:
-  version: 2
+  version: 2.1
   ssh_deploy:
     jobs:
       - deploy
