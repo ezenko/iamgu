@@ -11,3 +11,8 @@ jobs:
             cd /home/zeuty/test
             git reset --hard
             git pull origin master
+workflows:
+  version: 2
+  deploy:
+    jobs:
+      - deploy
