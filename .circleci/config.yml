@@ -20,10 +20,17 @@ workflows:
   version: 2
   ssh_deploy:
     jobs:
+      - request-approval:
+          type: approval
+          filters:
+            branches:
+              only: master
       - deploy-live:
           filters:
             branches:
               only: master
+          requires:
+          - request-approval
       - deploy-acc:
           filters:
             branches:
